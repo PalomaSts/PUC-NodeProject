@@ -1,22 +1,33 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { ProjectsModule } from './modules/projects/projects.module';
+import { ProjectModule } from './modules/projects/projects.module';
 import { UsersModule } from './modules/users/users.module';
-import { TasksModule } from './modules/tasks/tasks.module';
+import { TaskModule } from './modules/tasks/tasks.module';
 import { TypeOrmConfig } from './modules/config/typeorm/typeorm.module';
 import { CacheModule } from '@nestjs/cache-manager';
+import { AuthModule } from './modules/auth/auth.module';
+import { APP_GUARD } from '@nestjs/core';
+import { AuthGuardService } from './modules/auth/auth-guard/auth-guard.service';
+
 @Module({
   imports: [
     UsersModule,
-    ProjectsModule,
-    TasksModule,
+    ProjectModule,
+    TaskModule,
     TypeOrmConfig,
     CacheModule.register({
       isGlobal: true,
     }),
+    AuthModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    {
+      provide: APP_GUARD,
+      useClass: AuthGuardService,
+    },
+  ],
 })
 export class AppModule {}
